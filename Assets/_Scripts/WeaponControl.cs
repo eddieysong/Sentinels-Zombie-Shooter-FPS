@@ -4,100 +4,105 @@ using UnityEngine;
 
 public class WeaponControl : MonoBehaviour {
 
-	// indicates which weapon is active
-	private int activeWeaponID = 0;
+    // indicates which weapon is active
+    private int activeWeaponID = 0;
 
-	// indicates which loadout the player is using
-	private int primaryWeaponID = 0;
-	private int secondaryWeaponID = 2;
+    // indicates which loadout the player is using
+    private static int primaryWeaponID = 0;
 
-	[SerializeField] private GameObject[] weaponModels;
-	[SerializeField] private AudioClip[] fireAudioClips;
-	[SerializeField] private Transform muzzleFlashPoint;
-	[SerializeField] private GameObject muzzleFlash;
-	private GameObject weaponsWrapper;
+    [SerializeField]
+    private GameObject[] weaponModels;
+    [SerializeField]
+    private AudioClip[] fireAudioClips;
+    [SerializeField]
+    private Transform muzzleFlashPoint;
+    [SerializeField]
+    private GameObject muzzleFlash;
+    private GameObject weaponsWrapper;
 
+    private AudioSource fireWeaponAudioSource;
+    private float fireCooldown = 0.1f;
+    private float fireTimer = 0f;
 
+    private Vector3 recoilRotation;
+    private float recoilMultiplier = 1f;
 
+    // Use this for initialization
+    void Start() {
 
-	private AudioSource fireWeaponAudioSource;
-	private float fireCooldown = 0.1f;
-	private float fireTimer = 0f;
+        foreach (GameObject weapon in weaponModels) {
+            weapon.SetActive(false);
+        }
 
-	private Vector3 recoilRotation;
-	private float recoilMultiplier = 1f;
+        activeWeaponID = primaryWeaponID;
+        weaponModels[activeWeaponID].SetActive(true);
 
-	// Use this for initialization
-	void Start () {
+        // find audio source on the player
+        fireWeaponAudioSource = GameObject.Find("WeaponAudioSource").GetComponent<AudioSource>();
 
-		foreach (GameObject weapon in weaponModels) {
-			weapon.SetActive (false);
-		}
-		weaponModels [primaryWeaponID].SetActive (true);
+        weaponsWrapper = GameObject.Find("Weapons");
+    }
 
+    // Update is called once per frame
+    void Update() {
 
-		// find audio source on the player
-		fireWeaponAudioSource = GameObject.Find("WeaponAudioSource").GetComponent<AudioSource>();
+        // left mouse click
+        if (Input.GetButton("Fire1")) {
+            Fire();
+        }
 
-		weaponsWrapper = GameObject.Find ("Weapons");
+        RecoilFalloff();
 
+        if (Input.GetKeyDown(KeyCode.Q)) {
+            SwapWeapon();
+        }
+    }
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    void Fire() {
 
-		// left mouse click
-		if (Input.GetButton("Fire1")) {
-			Fire ();
-		}
+        if (Time.time > fireTimer) {
+            fireTimer = Time.time + fireCooldown;
+            fireWeaponAudioSource.PlayOneShot(fireAudioClips[activeWeaponID]);
+            Instantiate(muzzleFlash, muzzleFlashPoint.position, Quaternion.identity);
+            RecoilTrigger();
+        }
+    }
 
-		RecoilFalloff ();
+    void RecoilTrigger() {
+        recoilMultiplier += 0.5f;
+        Debug.Log(recoilMultiplier);
+        recoilRotation.x += Random.value * recoilMultiplier;
+        recoilRotation.y += Random.value * 0.5f * recoilMultiplier;
+        recoilRotation.z += Random.value * 0.5f * recoilMultiplier;
 
-		// left mouse click
-		if (Input.GetKeyDown(KeyCode.E)) {
-			SwapWeapon (primaryWeaponID);
-		}
+        Debug.Log(recoilRotation);
+    }
 
-		// left mouse click
-		if (Input.GetKeyDown(KeyCode.Q)) {
-			SwapWeapon (secondaryWeaponID);
-		}
-		
-	}
+    void RecoilFalloff() {
+        recoilMultiplier = Mathf.Clamp(recoilMultiplier - 0.05f, 1f, 6f);
+        recoilRotation *= 0.7f;
+        weaponsWrapper.transform.localRotation = Quaternion.Euler(recoilRotation);
+    }
 
-	void Fire () {
-		if (Time.time > fireTimer) {
-			fireTimer = Time.time + fireCooldown;
-			fireWeaponAudioSource.PlayOneShot (fireAudioClips [activeWeaponID]);
-			Instantiate (muzzleFlash, muzzleFlashPoint.position, Quaternion.identity);
-			RecoilTrigger ();
-		}
-	}
+    void SwapWeapon() {
 
-	void RecoilTrigger () {
-		recoilMultiplier += 0.5f;
-		Debug.Log (recoilMultiplier);
-		recoilRotation.x += Random.value * recoilMultiplier;
-		recoilRotation.y += Random.value * 0.5f * recoilMultiplier;
-		recoilRotation.z += Random.value * 0.5f * recoilMultiplier;
+        int switchToWeaponId = activeWeaponID + 1;
+        if (switchToWeaponId >= weaponModels.Length) {
+            switchToWeaponId = 0;
+        }
 
-		Debug.Log (recoilRotation);
-	}
+        SwapWeapon(switchToWeaponId);
+    }
 
-	void RecoilFalloff () {
-		recoilMultiplier = Mathf.Clamp (recoilMultiplier - 0.05f, 1f, 6f);
-		recoilRotation *= 0.7f;
-		weaponsWrapper.transform.localRotation = Quaternion.Euler (recoilRotation);
-	}
+    void SwapWeapon(int switchToWeaponId) {
 
-	void SwapWeapon (int weaponID) {
-		if (weaponID < 0 || weaponID >= weaponModels.Length) {
-			Debug.Log ("Wrong ID");
-		} else {
-			weaponModels [activeWeaponID].SetActive (false);
-			weaponModels [weaponID].SetActive (true);
-			activeWeaponID = weaponID;
-		}
-	}
+        if (switchToWeaponId < 0 || switchToWeaponId >= weaponModels.Length) {
+            Debug.Log("Wrong ID");
+        } else {
+
+            weaponModels[activeWeaponID].SetActive(false);
+            weaponModels[switchToWeaponId].SetActive(true);
+            activeWeaponID = switchToWeaponId;
+        }
+    }
 }
