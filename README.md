@@ -9,5 +9,5 @@ A Post-Zombie apocalyptic FPS
 ## Game Screen shots
 
 soon...
-<!--<img src="https://github.com/eddieysong/COMP305_A3/raw/master/specs/shot-1.png" alt="shot 1" />-->
+<img src="https://github.com/eddieysong/COMP305_Final_Project/raw/master/Specs/shot-1.png" alt="shot 1" />
 
