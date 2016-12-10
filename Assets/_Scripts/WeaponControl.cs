@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WeaponControl : MonoBehaviour {
 
@@ -30,12 +31,20 @@ public class WeaponControl : MonoBehaviour {
 	private GameObject brickImpactDecal;
 	[SerializeField]
 	private AudioClip[] brickImpactAudio;
+	[SerializeField]
+	private AudioClip reloadSound;
 
+	private int [] ammo = new int[3] {30, 30, 35};
+	private int [] ammoReserve = new int[3] {120, 150, 210};
+	private int [] ammoMax = new int[3] {30, 30, 35};
+	private Text ammoDisplay;
+	private GameObject ammoReserveDisplay;
+	private GameObject crosshair;
 
     private GameObject weaponsWrapper;
 	private AudioSource weaponAudioSource;
 	private Animator weaponSwapAnimator;
-	private GameObject crosshair;
+
 
 	private RaycastHit impact;
 	private float targetDistance;
@@ -73,7 +82,8 @@ public class WeaponControl : MonoBehaviour {
 
 
 
-		// find the crosshair for recoil
+		// find the HUD elements
+		ammoDisplay = GameObject.Find("AmmoDisplay").GetComponent<Text>();
 		crosshair = GameObject.Find("Crosshair");
     }
 
@@ -83,6 +93,9 @@ public class WeaponControl : MonoBehaviour {
 		// things that happen every frame
 		RecoilFalloff ();
 		UpdateCrosshairRecoil ();
+		UpdateHUD ();
+
+
 
 		if (Physics.Raycast (Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), out impact)) {
 			targetDistance = impact.distance;
@@ -105,16 +118,29 @@ public class WeaponControl : MonoBehaviour {
 		if (Time.time > fireTimer) {
 			// left mouse click
 			if (Input.GetButton ("Fire1")) {
-				Fire ();
-				FireRay ();
-			}
+				if (ammo[activeWeaponID] > 0) {
+					Fire ();
+					FireRay ();
+				} else {
+					StartCoroutine(ReloadWeapon ());
+				}
 
+			}
 
 			// swap weapon
 			if (Input.GetKeyDown (KeyCode.Q)) {
 				CycleWeapon ();
 			}
+
+
+			// reload weapon
+			if (Input.GetKeyDown (KeyCode.R)) {
+				StartCoroutine(ReloadWeapon ());
+			}
 		}
+
+
+
 
 
     }
@@ -133,7 +159,7 @@ public class WeaponControl : MonoBehaviour {
 		// adds some recoil with every shot fired
         RecoilTrigger();
 
-
+		ammo[activeWeaponID] -= 1;
 
     }
 
@@ -178,6 +204,45 @@ public class WeaponControl : MonoBehaviour {
 		crosshair.transform.localScale = new Vector3 (crosshairRecoilMultiplier, crosshairRecoilMultiplier, crosshairRecoilMultiplier);
 	}
 
+	// updates scale of crosshair to indicate recoil
+	void UpdateHUD() {
+		ammoDisplay.text = ammo [activeWeaponID] + " / " + ammoReserve [activeWeaponID];
+	}
+
+	// swap to a specific weapon
+	IEnumerator ReloadWeapon() {
+
+		if (ammo [activeWeaponID] < ammoMax [activeWeaponID] && ammoReserve [activeWeaponID] > 0) {
+			// disable firing for a second while the weapon is being reloaded
+			fireTimer = Time.time + 2.5f;
+
+			// required for recoil animation to work properly
+			weaponSwapAnimator.applyRootMotion = false;
+
+			// set trigger to play swap animation
+			weaponSwapAnimator.SetTrigger("ReloadWeapon");
+
+			// give time for the first half of animation to finish before changing visible gun model
+			yield return new WaitForSeconds (0.7f);
+
+			int newClip = Mathf.Min (ammoReserve [activeWeaponID], ammoMax [activeWeaponID] - ammo[activeWeaponID]);
+			ammoReserve [activeWeaponID] -= newClip;
+			ammo [activeWeaponID] += newClip;
+			weaponAudioSource.PlayOneShot (reloadSound);
+
+			// give time for the second half of animation to finish
+			yield return new WaitForSeconds (1.8f);
+
+			// reset recoil
+			recoilMultiplier = 1f;
+
+			// required for recoil animation to work properly
+			weaponSwapAnimator.applyRootMotion = true;
+		}
+
+
+	}
+
 	// swap to next weapon
     void CycleWeapon() {
 
@@ -191,7 +256,7 @@ public class WeaponControl : MonoBehaviour {
 
 	// swap to a specific weapon
 	IEnumerator SwapWeapon(int switchToWeaponId) {
-		Debug.Log (weaponModels[0]);
+		
 		// disable firing for a second while the weapon is being swapped
 		fireTimer = Time.time + 1f;
 
