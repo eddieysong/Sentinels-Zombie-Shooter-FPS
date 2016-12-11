@@ -17,10 +17,7 @@ public class WeaponControl : MonoBehaviour {
     private GameObject[] weaponModels;
     [SerializeField]
     private AudioClip[] fireAudioClips;
-	[SerializeField]
-	private float [] fireCooldowns;
-	[SerializeField]
-	private float [] recoilFactors;
+
     [SerializeField]
     private Transform muzzleFlashPoint;
     [SerializeField]
@@ -33,7 +30,12 @@ public class WeaponControl : MonoBehaviour {
 	private AudioClip[] brickImpactAudio;
 	[SerializeField]
 	private AudioClip reloadSound;
+	[SerializeField]
+	private GameObject bloodSplat;
 
+	private float [] weaponDamages = new float[] {7.5f, 6.0f, 5.0f};
+	private float [] fireCooldowns = new float[] {0.12f, 0.1f, 0.08f};
+	private float [] recoilFactors = new float[] {0.75f, 0.5f, 0.3f};
 	private int [] ammo = new int[3] {30, 30, 35};
 	private int [] ammoReserve = new int[3] {120, 150, 210};
 	private int [] ammoMax = new int[3] {30, 30, 35};
@@ -47,8 +49,9 @@ public class WeaponControl : MonoBehaviour {
 
 
 	private RaycastHit impact;
-	private float targetDistance;
-	private GameObject targetObject;
+	private float impactDistance;
+	private GameObject impactObject;
+	private ZombieControl zombieControl;
 
 
 
@@ -98,8 +101,8 @@ public class WeaponControl : MonoBehaviour {
 
 
 		if (Physics.Raycast (Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), out impact)) {
-			targetDistance = impact.distance;
-			targetObject = impact.transform.gameObject;
+			impactDistance = impact.distance;
+			impactObject = impact.transform.gameObject;
 
 
 
@@ -172,6 +175,13 @@ public class WeaponControl : MonoBehaviour {
 		Instantiate(brickImpactPrefab, impact.point, Quaternion.identity);
 		Instantiate(brickImpactDecal, impact.point, Quaternion.identity);
 		AudioSource.PlayClipAtPoint (brickImpactAudio[Random.Range(0, brickImpactAudio.Length)], impact.point);
+
+		if (impactObject.transform.root.CompareTag ("Zombie")) {
+			Debug.Log ("hit");
+			Instantiate (bloodSplat, impact.point, Quaternion.identity);
+			zombieControl = impactObject.GetComponentInParent<ZombieControl> ();
+			zombieControl.SendMessage ("HitByBullet", new object [] {impactObject.name, weaponDamages [activeWeaponID]}, SendMessageOptions.DontRequireReceiver);
+		}
 
 	}
 
