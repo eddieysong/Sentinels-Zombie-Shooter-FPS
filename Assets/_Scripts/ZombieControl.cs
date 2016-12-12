@@ -7,6 +7,7 @@ public class ZombieControl : MonoBehaviour {
 
 	public NavMeshAgent navAgent;
 	private GameObject player;
+	private WeaponControl weaponControl;
 	private Animator zombieAnimator;
 
 	private float hitPoints = 100f;
@@ -18,13 +19,22 @@ public class ZombieControl : MonoBehaviour {
 	void Start() {
 
 		player = GameObject.FindGameObjectWithTag ("Player");
+		weaponControl = player.GetComponentInChildren<WeaponControl>();
+
 		zombieAnimator = GetComponent<Animator> ();
 	}
 
 	// Update is called once per frame
 	void Update() {
-		
-		navAgent.SetDestination (player.transform.position);
+
+		if (weaponControl.GetThreatMultiplier () < 1.0f) {
+			navAgent.Stop ();
+			zombieAnimator.enabled = false;
+		} else {
+			navAgent.SetDestination (player.transform.position);
+			navAgent.Resume ();
+			zombieAnimator.enabled = true;
+		}
 //		if (hitPoints > 0) {
 //			navAgent.SetDestination (player.transform.position);
 //		} else {

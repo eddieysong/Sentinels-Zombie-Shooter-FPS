@@ -1,7 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+// required for UI manipulation
 using UnityEngine.UI;
+// required for camera effects
+using UnityStandardAssets.ImageEffects;
 
 public class WeaponControl : MonoBehaviour {
 
@@ -21,17 +25,23 @@ public class WeaponControl : MonoBehaviour {
     [SerializeField]
     private Transform muzzleFlashPoint;
     [SerializeField]
-    private GameObject muzzleFlash;
+	private ParticleSystem muzzleFlash;
 	[SerializeField]
-	private GameObject brickImpactPrefab;
+	private ParticleSystem concreteImpactPrefab;
 	[SerializeField]
-	private GameObject brickImpactDecal;
+	private ParticleSystem [] concreteImpactDecal;
 	[SerializeField]
-	private AudioClip[] brickImpactAudio;
+	private AudioClip[] concreteImpactAudio;
+	[SerializeField]
+	private ParticleSystem fleshImpactPrefab;
+	[SerializeField]
+	private ParticleSystem fleshImpactDecal;
+	[SerializeField]
+	private AudioClip[] fleshImpactAudio;
 	[SerializeField]
 	private AudioClip reloadSound;
-	[SerializeField]
-	private GameObject bloodSplat;
+//	[SerializeField]
+//	private GameObject bloodSplat;
 
 	private float [] weaponDamages = new float[] {7.5f, 6.0f, 5.0f};
 	private float [] fireCooldowns = new float[] {0.12f, 0.1f, 0.08f};
@@ -53,13 +63,19 @@ public class WeaponControl : MonoBehaviour {
 	private GameObject impactObject;
 	private ZombieControl zombieControl;
 
-
+	// find the camera filters
+	private MotionBlur motionBlurFilter;
+	private Grayscale greyscaleFilter;
 
 
 
     private float fireTimer = 0f;
     private Vector3 recoilRotation;
     private float recoilMultiplier = 1f;
+	private float weaponSpreadMultiplier = 1f;
+
+
+	private float threatMultiplier = 1.0f;
 
     // Use this for initialization
     void Start() {
@@ -88,6 +104,16 @@ public class WeaponControl : MonoBehaviour {
 		// find the HUD elements
 		ammoDisplay = GameObject.Find("AmmoDisplay").GetComponent<Text>();
 		crosshair = GameObject.Find("Crosshair");
+
+
+		// find the camera filters
+		motionBlurFilter = GameObject.FindGameObjectWithTag("MainCamera").GetComponentInChildren<MotionBlur>();
+		greyscaleFilter = GameObject.FindGameObjectWithTag("MainCamera").GetComponentInChildren<Grayscale>();
+
+
+		// turn off the camera filters until we need them
+		motionBlurFilter.enabled = false;
+		greyscaleFilter.enabled = false;
     }
 
     // Update is called once per frame
@@ -123,7 +149,6 @@ public class WeaponControl : MonoBehaviour {
 			if (Input.GetButton ("Fire1")) {
 				if (ammo[activeWeaponID] > 0) {
 					Fire ();
-					FireRay ();
 				} else {
 					StartCoroutine(ReloadWeapon ());
 				}
@@ -142,14 +167,47 @@ public class WeaponControl : MonoBehaviour {
 			}
 		}
 
+		if (Input.GetKeyDown (KeyCode.F)) {
+			if (Time.timeScale == 1.0F) {
+				Time.timeScale = 0.5F;
+				motionBlurFilter.enabled = true;
+			} else {
+				Time.timeScale = 1.0F;
+				motionBlurFilter.enabled = false;
+			}
 
+
+		}
+
+		if (Input.GetKeyDown (KeyCode.V)) {
+			if (threatMultiplier == 1.0F) {
+				threatMultiplier = 0.1F;
+				greyscaleFilter.enabled = true;
+			} else {
+				threatMultiplier = 1.0F;
+				greyscaleFilter.enabled = false;
+			}
+		}
 
 
 
     }
 
     void Fire() {
+		
+		float scaleLimit = (recoilMultiplier - 1) * weaponSpreadMultiplier;
+			
+		//  Generate a random XY point inside a circle:
+		Vector3 direction = Random.insideUnitCircle * scaleLimit;
+		direction.z = 35f; // circle is at Z units 
+		direction = Camera.main.transform.TransformDirection( direction.normalized );    
 
+		// use FireRay method only if the raycast returns a hit, otherwise don't bother.
+		if (Physics.Raycast (Camera.main.transform.position, direction, out impact)) {
+			impactDistance = impact.distance;
+			impactObject = impact.transform.gameObject;
+			FireRay ();
+		}
 		// put weapon on cooldown according to which type of weapon it is
 		fireTimer = Time.time + fireCooldowns[activeWeaponID];
 
@@ -162,23 +220,34 @@ public class WeaponControl : MonoBehaviour {
 		// adds some recoil with every shot fired
         RecoilTrigger();
 
+		// use one round of ammo
 		ammo[activeWeaponID] -= 1;
 
     }
 
 	// handles firing logic related to instant projectile hits (e.g. guns)
 	void FireRay () {
+
+		Quaternion quatAngle = Quaternion.LookRotation( impact.normal );
+
 //		Quaternion quatAngle = Quaternion.LookRotation( impact.normal );
-//		Instantiate( brickImpactPrefab, impact.point, quatAngle );
-//		ParticleSystem decal = (ParticleSystem) Instantiate( brickImpactDecal, impact.point + impact.normal * 0.020f, quatAngle );
-//		decal.transform.parent = impact.transform.gameObject.transform;	// parent the decal to the object
-		Instantiate(brickImpactPrefab, impact.point, Quaternion.identity);
-		Instantiate(brickImpactDecal, impact.point, Quaternion.identity);
-		AudioSource.PlayClipAtPoint (brickImpactAudio[Random.Range(0, brickImpactAudio.Length)], impact.point);
+//		Instantiate( concreteImpactPrefab, impact.point, quatAngle );
+
+		if (impactObject.CompareTag ("Concrete")) {
+			Instantiate(concreteImpactPrefab, impact.point, quatAngle);
+//			Instantiate(concreteImpactDecal[Random.Range(0, concreteImpactAudio.Length)], impact.point, quatAngle);
+//			ParticleSystem decal = (ParticleSystem) Instantiate( concreteImpactDecal[Random.Range(0, concreteImpactAudio.Length)], impact.point + impact.normal * 0.020f, quatAngle );
+//			decal.transform.parent = impact.transform.gameObject.transform;	// parent the decal to the object
+			AudioSource.PlayClipAtPoint (concreteImpactAudio[Random.Range(0, concreteImpactAudio.Length)], impact.point);
+		}
+
 
 		if (impactObject.transform.root.CompareTag ("Zombie")) {
-			Debug.Log ("hit");
-			Instantiate (bloodSplat, impact.point, Quaternion.identity);
+			Instantiate(fleshImpactPrefab, impact.point, quatAngle);
+//			Instantiate(fleshImpactDecal, impact.point, Quaternion.identity);
+			AudioSource.PlayClipAtPoint (fleshImpactAudio[Random.Range(0, fleshImpactAudio.Length)], impact.point);
+//			Debug.Log ("hit");
+//			Instantiate (bloodSplat, impact.point, Quaternion.identity);
 			zombieControl = impactObject.GetComponentInParent<ZombieControl> ();
 			zombieControl.SendMessage ("HitByBullet", new object [] {impactObject.name, weaponDamages [activeWeaponID]}, SendMessageOptions.DontRequireReceiver);
 		}
@@ -305,5 +374,10 @@ public class WeaponControl : MonoBehaviour {
 	public void SwapLoadout(int primary, int secondary) {
 		primaryWeaponID = primary;
 		secondaryWeaponID = secondary;
+	}
+
+	// get the player's threat level, if higher than threshold, zombie will chase player
+	public float GetThreatMultiplier() {
+		return threatMultiplier;
 	}
 }
