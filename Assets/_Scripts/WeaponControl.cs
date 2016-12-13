@@ -372,19 +372,18 @@ public class WeaponControl : MonoBehaviour {
   }
 
   // Called when hit by a zombie
-  void HitByBullet(float damage) {
+  void HitByZombie(float damage) {
+		
     if (playerHitPoints > 0) {
 
 
       playerHitPoints -= damage;
-
+      Debug.Log(playerHitPoints);
       if (playerHitPoints <= 0) {
         Debug.Log("player dead!");
       }
     }
   }
-
-
 
 
 

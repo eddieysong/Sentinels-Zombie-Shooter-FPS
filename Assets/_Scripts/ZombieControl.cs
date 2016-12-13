@@ -96,7 +96,7 @@ public class ZombieControl : MonoBehaviour {
       running = false;
     }
 
-//    print(" running " + (running ? " true" : " false") + ". State: " + zombieAnimator.GetInteger("state"));
+//		print (" running " + (running ? " true" : " false") + ". State: " + zombieAnimator.GetInteger ("state"));
   }
 
   // Called when hit by a shot
@@ -113,7 +113,7 @@ public class ZombieControl : MonoBehaviour {
       } else {
         hitPoints -= damage * 0.5f;
       }
-
+      Debug.Log("zombieHP: " + hitPoints);
       if (hitPoints <= 0) {
         Die();
       }
@@ -131,14 +131,18 @@ public class ZombieControl : MonoBehaviour {
     // set trigger to play attack animation
     zombieAnimator.SetInteger("state", 1);
 
+    yield return new WaitForSeconds(0.6f);
+
     GameObject trigger = Instantiate(attackTrigger, attackTriggerSpawn.position, Quaternion.identity);
     trigger.SendMessage("SetDamage", damage, SendMessageOptions.DontRequireReceiver);
 
     // give time for the animation to finish
-    yield return new WaitForSeconds(1.5f);
+    yield return new WaitForSeconds(0.8f);
 
-    // set trigger to play walk animation
-    zombieAnimator.SetInteger("state", 0);
+    if (alive) {
+      // set trigger to play walk animation
+      zombieAnimator.SetInteger("state", 0);
+    }
 
     attacking = false;
   }

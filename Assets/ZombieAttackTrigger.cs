@@ -8,7 +8,7 @@ public class ZombieAttackTrigger : MonoBehaviour {
 
   // Use this for initialization
   void Start() {
-    Destroy(gameObject, 1.5f);
+    Destroy(gameObject, 0.8f);
   }
 	
   // Update is called once per frame
