@@ -141,7 +141,7 @@ public class ZombieControl : MonoBehaviour
 		trigger.SendMessage ("SetDamage", damage, SendMessageOptions.DontRequireReceiver);
 
 		// give time for the animation to finish
-		yield return new WaitForSeconds(0.9f);
+		yield return new WaitForSeconds(0.8f);
 
 		if (alive) {
 		// set trigger to play walk animation
