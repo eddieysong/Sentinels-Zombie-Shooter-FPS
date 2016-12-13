@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 549f68d182d8add46a439a2b35911355
+timeCreated: 1481660404
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: HighlandGothicFLF
+  fontNames:
+  - HighlandGothicFLF
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 0e8d36bfa8c2af04ea8fa68a9108bb77, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
