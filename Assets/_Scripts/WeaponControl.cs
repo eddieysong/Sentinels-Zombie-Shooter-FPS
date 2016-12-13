@@ -213,6 +213,8 @@ public class WeaponControl : MonoBehaviour
 		if (Physics.Raycast (Camera.main.transform.position, direction, out impact)) {
 			impactDistance = impact.distance;
 			impactObject = impact.transform.gameObject;
+//			Debug.Log (impactDistance);
+//			Debug.Log (impactObject.name);
 			FireRay ();
 		}
 		// put weapon on cooldown according to which type of weapon it is
@@ -257,6 +259,7 @@ public class WeaponControl : MonoBehaviour
 //			Debug.Log ("hit");
 //			Instantiate (bloodSplat, impact.point, Quaternion.identity);
 			zombieControl = impactObject.GetComponentInParent<ZombieControl> ();
+//			Debug.Log (zombieControl.name);
 			zombieControl.SendMessage ("HitByBullet", new object [] { impactObject.name, weaponDamages [activeWeaponID] }, SendMessageOptions.DontRequireReceiver);
 		}
 
@@ -387,13 +390,14 @@ public class WeaponControl : MonoBehaviour
 	}
 
 	// Called when hit by a zombie
-	void HitByBullet (float damage)
+	void HitByZombie (float damage)
 	{
+		
 		if (playerHitPoints > 0) {
 
 
 			playerHitPoints -= damage;
-
+			Debug.Log (playerHitPoints);
 			if (playerHitPoints <= 0) {
 				Debug.Log ("player dead!");
 			}
