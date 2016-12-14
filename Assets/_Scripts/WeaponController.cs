@@ -8,14 +8,25 @@ using UnityEngine.UI;
 // required for camera effects
 using UnityStandardAssets.ImageEffects;
 
-public class WeaponControl : MonoBehaviour
+public class WeaponController : MonoBehaviour
 {
 
 	// indicate the player's class
 	[SerializeField]
 	private string playerClass;
-	private float abilityCooldown = 5f;
+
+
+	private string [] playerClasses = new string [] {"Assassin", "Crusader", "Shadow"};
+	private float [] classMoveSpeed = new float[] { 4f, 2.5f, 3f };
+	private string [] classAbilities = new string [] {"AdrenalineRush", "Fortress", "PhaseWalk"};
+	private float [] classAbilityCooldown = new float[] { 5f, 5f, 5f };
+	private int [] classPrimaryWeaponID = new int[] { 1, 0, 2 };
+	private int [] classSecondaryWeaponID = new int[] { 2, 2, 2 };
+
+
 	private float abilityTimer;
+
+	// we need to change a few values in 
 
 	// indicates which weapon is active
 	private int activeWeaponID = 0;
@@ -62,10 +73,11 @@ public class WeaponControl : MonoBehaviour
 	private int[] ammo = new int[3] { 30, 30, 35 };
 	private int[] ammoReserve = new int[3] { 120, 150, 210 };
 	private int[] ammoMax = new int[3] { 30, 30, 35 };
-	private Text ammoDisplay;
-	private GameObject ammoReserveDisplay;
-	private GameObject crosshair;
 	private Text healthDisplay;
+	private Text weaponNameDisplay;
+	private Text ammoDisplay;
+	private GameObject crosshair;
+
 
 
 	private GameObject weaponsWrapper;
@@ -76,7 +88,7 @@ public class WeaponControl : MonoBehaviour
 	private RaycastHit impact;
 	private float impactDistance;
 	private GameObject impactObject;
-	private ZombieControl zombieControl;
+	private ZombieController zombieControl;
 
 	// find the camera filters
 	private MotionBlur motionBlurFilter;
@@ -98,6 +110,10 @@ public class WeaponControl : MonoBehaviour
 	void Start ()
 	{
 
+		// initialize class
+		InitializeClass (playerClass);
+
+
 		// set all weapons to invisible then set active to primary and show it
 		foreach (GameObject weapon in weaponModels) {
 			weapon.SetActive (false);
@@ -117,9 +133,13 @@ public class WeaponControl : MonoBehaviour
 		weaponSwapAnimator = weaponsWrapper.GetComponent<Animator> ();
 
 		// find the HUD elements
-		ammoDisplay = GameObject.Find ("AmmoDisplay").GetComponent<Text> ();
-		crosshair = GameObject.Find ("Crosshair");
+
 		healthDisplay = GameObject.Find ("HealthDisplay").GetComponent<Text> ();
+		ammoDisplay = GameObject.Find ("AmmoDisplay").GetComponent<Text> ();
+		weaponNameDisplay = GameObject.Find ("WeaponName").GetComponent<Text> ();
+		crosshair = GameObject.Find ("Crosshair");
+
+
 
 		// find the camera filters
 		motionBlurFilter = GameObject.FindGameObjectWithTag ("MainCamera").GetComponentInChildren<MotionBlur> ();
@@ -130,6 +150,25 @@ public class WeaponControl : MonoBehaviour
 		// turn off the camera filters until we need them
 		motionBlurFilter.enabled = false;
 		greyscaleFilter.enabled = false;
+	}
+
+	void InitializeClass (string className) {
+		switch (className) {
+		case "Assassin": 
+			primaryWeaponID = 1;
+			secondaryWeaponID = 2;
+			break;
+
+		case "Crusader": 
+			primaryWeaponID = 0;
+			secondaryWeaponID = 2;
+			break;
+
+		case "Shadow": 
+			primaryWeaponID = 2;
+			secondaryWeaponID = 2;
+			break;
+	}
 	}
 
 	// Update is called once per frame
@@ -157,8 +196,6 @@ public class WeaponControl : MonoBehaviour
 		// required for recoil animation to work properly
 		weaponSwapAnimator.applyRootMotion = weaponAnimationFinished;
 
-
-
 		// actions that are only available if weapon not on cooldown
 		if (Time.time > fireTimer && weaponAnimationFinished) {
 			// left mouse click
@@ -173,7 +210,7 @@ public class WeaponControl : MonoBehaviour
 
 			// swap weapon
 			if (Input.GetKeyDown (KeyCode.Q)) {
-				CycleWeapon ();
+				SwapWeapon ();
 			}
 
 
@@ -188,45 +225,31 @@ public class WeaponControl : MonoBehaviour
 		}
 
 		if (Input.GetKeyDown (KeyCode.V)) {
-			if (threatMultiplier == 1.0F) {
-				threatMultiplier = 0.1F;
-				greyscaleFilter.enabled = true;
-				noiseAndGrainFilter.enabled = true;
-			} else {
-				threatMultiplier = 1.0F;
-				greyscaleFilter.enabled = false;
-				noiseAndGrainFilter.enabled = false;
-			}
+
+			StartCoroutine("PhaseWalk");
+
 		}
 
 
 
 	}
 
+
+	// uses active ability according to the player's class
 	void UseActiveAbility(){
 		if (abilityTimer < Time.time) {
-			abilityTimer = Time.time + abilityCooldown;
+			abilityTimer = Time.time + classAbilityCooldown[System.Array.IndexOf(playerClasses, playerClass)];
 			switch (playerClass) {
 			case "Assassin":
-				StartCoroutine(AdrenalineRush ());
+				StartCoroutine("AdrenalineRush");
 				break;
 			case "Crusader":
 				break;
 			case "Shadow":
-				if (threatMultiplier == 1.0F) {
-					threatMultiplier = 0.1F;
-					greyscaleFilter.enabled = true;
-				} else {
-					threatMultiplier = 1.0F;
-					greyscaleFilter.enabled = false;
-				}
+				StartCoroutine("PhaseWalk");
 				break;
 			}
 		}
-
-
-
-
 	}
 
 	IEnumerator AdrenalineRush() {
@@ -237,13 +260,27 @@ public class WeaponControl : MonoBehaviour
 			motionBlurFilter.enabled = true;
 			audioReverbFilter.enabled = true;
 
-			yield return new WaitForSeconds (1f);
+			yield return new WaitForSeconds (1.5f);
 
 			Time.timeScale = 1.0F;
 			weaponSwapAnimator.speed = 1 / Time.timeScale;
 
 			motionBlurFilter.enabled = false;
 			audioReverbFilter.enabled = false;
+		}
+	}
+
+	IEnumerator PhaseWalk() {
+		if (threatMultiplier == 1.0F) {
+			threatMultiplier = 0.1F;
+			greyscaleFilter.enabled = true;
+			noiseAndGrainFilter.enabled = true;
+
+			yield return new WaitForSeconds (6.0f);
+
+			threatMultiplier = 1.0F;
+			greyscaleFilter.enabled = false;
+			noiseAndGrainFilter.enabled = false;
 		}
 	}
 
@@ -304,7 +341,7 @@ public class WeaponControl : MonoBehaviour
 			AudioSource.PlayClipAtPoint (fleshImpactAudio [Random.Range (0, fleshImpactAudio.Length)], impact.point);
 //			Debug.Log ("hit");
 //			Instantiate (bloodSplat, impact.point, Quaternion.identity);
-			zombieControl = impactObject.GetComponentInParent<ZombieControl> ();
+			zombieControl = impactObject.GetComponentInParent<ZombieController> ();
 			zombieControl.SendMessage ("HitByBullet", new object [] { impactObject.name, weaponDamages [activeWeaponID] }, SendMessageOptions.DontRequireReceiver);
 		}
 
@@ -346,9 +383,9 @@ public class WeaponControl : MonoBehaviour
 	// updates scale of crosshair to indicate recoil
 	void UpdateHUD ()
 	{
+		weaponNameDisplay.text = weaponNames [activeWeaponID];
 		ammoDisplay.text = ammo [activeWeaponID] + " / " + ammoReserve [activeWeaponID];
 		healthDisplay.text = Mathf.CeilToInt(playerHitPoints).ToString();
-//		healthDisplay.text = weaponSwapAnimator.GetCurrentAnimatorStateInfo (0).tagHash;
 	}
 
 	// swap to a specific weapon
@@ -379,19 +416,22 @@ public class WeaponControl : MonoBehaviour
 	}
 
 	// swap to next weapon
-	void CycleWeapon ()
+	void SwapWeapon ()
 	{
-
-		int switchToWeaponId = activeWeaponID + 1;
-		if (switchToWeaponId >= weaponModels.Length) {
-			switchToWeaponId = 0;
+		// if only one weapon, don't bother
+		// if primary active, switch to secondary
+		// if secondary active, switch to primary
+		if (primaryWeaponID != secondaryWeaponID) {
+			if (activeWeaponID == primaryWeaponID) {
+				SwapWeapon (secondaryWeaponID);
+			} else {
+				SwapWeapon (primaryWeaponID);
+			}
 		}
-
-		SwapWeapon (switchToWeaponId);
 	}
 
 	// swap to a specific weapon
-	void SwapWeapon (int switchToWeaponId)
+	void SwapWeapon (int weaponID)
 	{
 		
 		// required for recoil animation to work properly
@@ -400,12 +440,12 @@ public class WeaponControl : MonoBehaviour
 		// set trigger to play swap animation
 		weaponSwapAnimator.Play("WeaponSwap");
 
-		if (switchToWeaponId < 0 || switchToWeaponId >= weaponModels.Length) {
+		if (weaponID < 0 || weaponID >= weaponModels.Length) {
 			Debug.Log ("Wrong ID");
 		} else {
 
 //			weaponModels [activeWeaponID].SetActive (false);
-			activeWeaponID = switchToWeaponId;
+			activeWeaponID = weaponID;
 //			weaponModels [activeWeaponID].SetActive (true);
             
 		}

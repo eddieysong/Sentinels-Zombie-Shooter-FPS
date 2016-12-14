@@ -23,7 +23,7 @@ public class ZombieAttackTrigger : MonoBehaviour {
   void OnTriggerEnter(Collider other) {
     Debug.Log(other.name);
     if (other.CompareTag("Player")) {
-      WeaponControl playerWC = other.transform.GetComponentInChildren<WeaponControl>();
+      WeaponController playerWC = other.transform.GetComponentInChildren<WeaponController>();
       playerWC.SendMessage("HitByZombie", damage, SendMessageOptions.DontRequireReceiver);
     }
   }
