@@ -43,6 +43,25 @@ namespace UnityStandardAssets.Characters.FirstPerson {
     private bool m_Jumping;
     private AudioSource m_AudioSource;
 
+
+		// Eddie's modifications
+
+
+		// used to set speed for different classes
+		private void SetSpeed(float walkSpeed){
+			this.m_WalkSpeed = walkSpeed;
+			this.m_RunSpeed = walkSpeed * 2f;
+			this.m_StepInterval = walkSpeed;
+		}
+
+		// cannot run when exhausted
+		public bool exhausted = false;
+
+
+
+		// end of Eddie's modifications
+
+
     // Use this for initialization
     private void Start() {
       m_CharacterController = GetComponent<CharacterController>();

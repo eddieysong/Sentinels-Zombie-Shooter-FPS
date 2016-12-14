@@ -8,6 +8,9 @@ using UnityEngine.UI;
 // required for camera effects
 using UnityStandardAssets.ImageEffects;
 
+// required to access FPSController script
+using UnityStandardAssets.Characters.FirstPerson;
+
 public class WeaponController : MonoBehaviour
 {
 
@@ -17,8 +20,9 @@ public class WeaponController : MonoBehaviour
 
 
 	private string [] playerClasses = new string [] {"Assassin", "Crusader", "Shadow"};
-	private float [] classMoveSpeed = new float[] { 4f, 2.5f, 3f };
-	private string [] classAbilities = new string [] {"AdrenalineRush", "Fortress", "PhaseWalk"};
+	private int playerClassIndex;
+	private float [] classMoveSpeed = new float[] { 4f, 2.5f, 2f };
+	private string [] classAbilities = new string [] {"Adrenaline Rush", "Fortress", "Phase Walk"};
 	private float [] classAbilityCooldown = new float[] { 5f, 5f, 5f };
 	private int [] classPrimaryWeaponID = new int[] { 1, 0, 2 };
 	private int [] classSecondaryWeaponID = new int[] { 2, 2, 2 };
@@ -26,13 +30,14 @@ public class WeaponController : MonoBehaviour
 
 	private float abilityTimer;
 
-	// we need to change a few values in 
+	// we need to change a few values in FirstPersonController
+	private FirstPersonController FPSController;
 
 	// indicates which weapon is active
 	private int activeWeaponID = 0;
 
 	// indicates which loadout the player is using
-	private int primaryWeaponID = 0;
+	private int primaryWeaponID = 1;
 	private int secondaryWeaponID = 2;
 
 	// things that need to be defined in the inspector
@@ -64,6 +69,8 @@ public class WeaponController : MonoBehaviour
 
 	[SerializeField]
 	private float playerHitPoints = 100f;
+	[SerializeField]
+	private float playerStamina = 100f;
 
 
 	private string[] weaponNames = new string[] { "AK-47", "M4A1", "UMP-45" };
@@ -73,10 +80,16 @@ public class WeaponController : MonoBehaviour
 	private int[] ammo = new int[3] { 30, 30, 35 };
 	private int[] ammoReserve = new int[3] { 120, 150, 210 };
 	private int[] ammoMax = new int[3] { 30, 30, 35 };
+	private GameObject crosshair;
 	private Text healthDisplay;
 	private Text weaponNameDisplay;
 	private Text ammoDisplay;
-	private GameObject crosshair;
+	private Text skillText;
+	private Animator mainMessage;
+	private Animator mainMessageOuter;
+	private Text mainMessageText;
+	private Text mainMessageOuterText;
+
 
 
 
@@ -102,17 +115,30 @@ public class WeaponController : MonoBehaviour
 	private Vector3 recoilRotation;
 	private float recoilMultiplier = 1f;
 	private float weaponSpreadMultiplier = 1f;
-
-
 	private float threatMultiplier = 1.0f;
+	private int killStreak = 0;
+	private int headshotStreak = 0;
+	private float lastKillTime;
+	private float lastHeadshotTime;
+
+
+
+
+
+
+
+
+
 
 	// Use this for initialization
 	void Start ()
 	{
+		// find FPSController script
+		FPSController = GameObject.FindGameObjectWithTag ("Player").GetComponent<FirstPersonController>();
 
 		// initialize class
+		playerClassIndex = System.Array.IndexOf (playerClasses, playerClass);
 		InitializeClass (playerClass);
-
 
 		// set all weapons to invisible then set active to primary and show it
 		foreach (GameObject weapon in weaponModels) {
@@ -133,11 +159,16 @@ public class WeaponController : MonoBehaviour
 		weaponSwapAnimator = weaponsWrapper.GetComponent<Animator> ();
 
 		// find the HUD elements
-
+		crosshair = GameObject.Find ("Crosshair");
 		healthDisplay = GameObject.Find ("HealthDisplay").GetComponent<Text> ();
 		ammoDisplay = GameObject.Find ("AmmoDisplay").GetComponent<Text> ();
 		weaponNameDisplay = GameObject.Find ("WeaponName").GetComponent<Text> ();
-		crosshair = GameObject.Find ("Crosshair");
+		skillText = GameObject.Find ("SkillText").GetComponent<Text> ();
+		mainMessage = GameObject.Find ("MainMessage").GetComponent<Animator> ();
+		mainMessageOuter = GameObject.Find ("MainMessageOuter").GetComponent<Animator> ();
+		mainMessageText = GameObject.Find ("MainMessage").GetComponent<Text> ();
+		mainMessageOuterText = GameObject.Find ("MainMessageOuter").GetComponent<Text> ();
+
 
 
 
@@ -150,25 +181,14 @@ public class WeaponController : MonoBehaviour
 		// turn off the camera filters until we need them
 		motionBlurFilter.enabled = false;
 		greyscaleFilter.enabled = false;
+		noiseAndGrainFilter.enabled = false;
+		audioReverbFilter.enabled = false;
 	}
 
 	void InitializeClass (string className) {
-		switch (className) {
-		case "Assassin": 
-			primaryWeaponID = 1;
-			secondaryWeaponID = 2;
-			break;
+		primaryWeaponID = classPrimaryWeaponID [playerClassIndex];
 
-		case "Crusader": 
-			primaryWeaponID = 0;
-			secondaryWeaponID = 2;
-			break;
-
-		case "Shadow": 
-			primaryWeaponID = 2;
-			secondaryWeaponID = 2;
-			break;
-	}
+		FPSController.SendMessage ("SetSpeed", classMoveSpeed[playerClassIndex], SendMessageOptions.DontRequireReceiver);
 	}
 
 	// Update is called once per frame
@@ -180,10 +200,24 @@ public class WeaponController : MonoBehaviour
 		UpdateCrosshairRecoil ();
 		UpdateHUD ();
 
-//		if (Physics.Raycast (Camera.main.transform.position, Camera.main.transform.TransformDirection (Vector3.forward), out impact)) {
-//			impactDistance = impact.distance;
-//			impactObject = impact.transform.gameObject;
-//		}
+		if (Input.GetKey (KeyCode.LeftShift) && (Input.GetAxis ("Vertical") != 0 || Input.GetAxis ("Horizontal") != 0)) {
+			playerStamina -= Time.deltaTime * 10;
+			if (playerStamina <= 0) {
+				FPSController.exhausted = true;
+			}
+		} else {
+			playerStamina = Mathf.Clamp (playerStamina + Time.deltaTime * 5, 0f, 100f);
+			if (playerStamina >= 30) {
+				FPSController.exhausted = false;
+			}
+		}
+
+
+
+
+
+
+		
 		if (weaponSwapAnimator.GetCurrentAnimatorStateInfo (0).IsName ("WeaponSwap2")) {
 			foreach (GameObject weapon in weaponModels) {
 				weapon.SetActive (false);
@@ -238,7 +272,7 @@ public class WeaponController : MonoBehaviour
 	// uses active ability according to the player's class
 	void UseActiveAbility(){
 		if (abilityTimer < Time.time) {
-			abilityTimer = Time.time + classAbilityCooldown[System.Array.IndexOf(playerClasses, playerClass)];
+			abilityTimer = Time.time + classAbilityCooldown[playerClassIndex];
 			switch (playerClass) {
 			case "Assassin":
 				StartCoroutine("AdrenalineRush");
@@ -386,7 +420,46 @@ public class WeaponController : MonoBehaviour
 		weaponNameDisplay.text = weaponNames [activeWeaponID];
 		ammoDisplay.text = ammo [activeWeaponID] + " / " + ammoReserve [activeWeaponID];
 		healthDisplay.text = Mathf.CeilToInt(playerHitPoints).ToString();
+
+		if (abilityTimer > Time.time) {
+			skillText.text = classAbilities [playerClassIndex] + " will be available in " + 
+				Mathf.CeilToInt(abilityTimer - Time.time).ToString() + " seconds...";
+		} else {
+			skillText.text = classAbilities [playerClassIndex] + " is available!";
+		}
+
 	}
+
+	void KillMessage() {
+		if (Time.time < lastKillTime + 5f) {
+			killStreak += 1;
+		} else {
+			killStreak = 1;
+		}
+
+		lastKillTime = Time.time;
+
+		mainMessageText.text = "Kill Streak x " + killStreak + " !";
+		mainMessageOuterText.text = mainMessageText.text;
+		mainMessage.Play ("MainMessagePopup", -1, 0f);
+		mainMessageOuter.Play ("MainMessageOuterPopup", -1, 0f);
+	}
+
+	void HeadshotMessage() {
+		if (lastHeadshotTime > 0) {
+			headshotStreak += 1;
+		} else {
+			headshotStreak = 1;
+		}
+
+		lastHeadshotTime = Time.time;
+
+		mainMessageText.text = "Head Shot x " + headshotStreak + " !";
+		mainMessageOuterText.text = mainMessageText.text;
+		mainMessage.Play ("MainMessagePopup", -1, 0f);
+		mainMessageOuter.Play ("MainMessageOuterPopup", -1, 0f);
+	}
+
 
 	// swap to a specific weapon
 	void ReloadWeapon ()

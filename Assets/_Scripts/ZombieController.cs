@@ -116,7 +116,7 @@ public class ZombieController : MonoBehaviour
 
 			if (bodyPart.Contains ("Head")) {
 				hitPoints -= damage * 4f;
-
+				weaponControl.SendMessage ("HeadshotMessage", SendMessageOptions.DontRequireReceiver);
 			} else if (bodyPart.Contains ("Spine")) {
 				hitPoints -= damage;
 			} else {
@@ -162,6 +162,7 @@ public class ZombieController : MonoBehaviour
 		zombieAnimator.SetInteger ("state", curState);
 		timeOfDeath = Time.time;
 		alive = false;
+		weaponControl.SendMessage ("KillMessage", SendMessageOptions.DontRequireReceiver);
 		Destroy (gameObject, 5f);
 	}
 
