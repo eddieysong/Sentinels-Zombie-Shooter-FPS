@@ -5,11 +5,14 @@ using UnityEngine.AI;
 
 public class ZombieController : MonoBehaviour {
 
-  private static float NAV_AGENT_INITIAL_SPEED = 0.8f;
+  [SerializeField]
+  private float NAV_AGENT_INITIAL_SPEED = 0.8f;
+
   public NavMeshAgent navAgent;
   private GameObject player;
   private WeaponController weaponControl;
   private Animator zombieAnimator;
+
 
   private AudioSource audioSource;
   private AudioClip[] zombieTalkClips;

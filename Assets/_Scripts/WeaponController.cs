@@ -367,6 +367,10 @@ public class WeaponController : MonoBehaviour {
     Transform root = gameObject.transform.root;
     Transform current = gameObject.transform;
 
+    if (current == null || root == null) {
+      return false;
+    }
+
     do {
 
       if (current.CompareTag(tag)) {
@@ -375,6 +379,10 @@ public class WeaponController : MonoBehaviour {
       current = current.parent;
 
     } while (current != root);
+
+    if (current.CompareTag(tag)) {
+      return true;
+    }
 
     return false;
   }
