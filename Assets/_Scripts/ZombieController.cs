@@ -13,7 +13,6 @@ public class ZombieController : MonoBehaviour {
   private WeaponController weaponControl;
   private Animator zombieAnimator;
 
-
   private AudioSource audioSource;
   private AudioClip[] zombieTalkClips;
 
@@ -35,9 +34,19 @@ public class ZombieController : MonoBehaviour {
   private bool running;
   private bool attacking;
   private float initialAnimationSpeed = 1f;
-   
+
+  private MainGameController gameController;
+
+  [Header("Boss Settings")]
+  [SerializeField]
+  private bool isBoss = false;
+  [SerializeField]
+  private string goToSceneWhenKillBoss;
+
   // Use this for initialization
   void Start() {
+
+    gameController = GameObject.Find("GameController").GetComponent<MainGameController>();
 
     audioSource = GetComponent<AudioSource>();
 
@@ -185,6 +194,13 @@ public class ZombieController : MonoBehaviour {
     alive = false;
     weaponControl.SendMessage("KillMessage", SendMessageOptions.DontRequireReceiver);
     Destroy(gameObject, 5f);
+
+    if (isBoss) {
+      // go to next scene when boss is dead
+      gameController.bossDead(gameObject, goToSceneWhenKillBoss);
+    } else {
+      gameController.zombieDead(gameObject);
+    }
   }
 
   //	void FadeOut() {
