@@ -11,6 +11,9 @@ public class MainGameController : MonoBehaviour {
   private WeaponController weaponControl;
   private Text statusText;
   private Color statusColor;
+	[HideInInspector]
+	public int numZombies;
+	public int maxNumZombies;
 
   // Use this for initialization
   void Start() {
@@ -37,7 +40,7 @@ public class MainGameController : MonoBehaviour {
   public void zombieDead(GameObject zombie) {
 
     zombiesKilled++;
-
+		numZombies--;
     if (zombiesKilled < 5) {
       StartCoroutine(setStatusFor("Zombie killed (" + zombiesKilled + ")", false, 2f));
     } else if (zombiesKilled >= 5 && zombiesKilled < 10) {

@@ -197,8 +197,8 @@ public class WeaponController : MonoBehaviour {
     UpdateCrosshairRecoil();
     UpdateHUD();
 
-    if (Input.GetKey(KeyCode.LeftShift) && (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)) {
-      playerStamina -= Time.deltaTime * 10;
+		if (!FPSController.m_IsWalking) {
+			playerStamina = Mathf.Clamp(playerStamina - Time.deltaTime * 10, 0f, 100f);
       if (playerStamina <= 0) {
         FPSController.exhausted = true;
       }
@@ -350,7 +350,8 @@ public class WeaponController : MonoBehaviour {
       AudioSource.PlayClipAtPoint(concreteImpactAudio[Random.Range(0, concreteImpactAudio.Length)], impact.point);
     }
 
-    if (hasParentWithTag(impactObject, "Zombie")) {
+		if (impactObject.transform.root.CompareTag("Zombie")) {
+//	if (hasParentWithTag(impactObject, "Zombie")) {
       Instantiate(fleshImpactPrefab, impact.point, quatAngle);
 //			Instantiate(fleshImpactDecal, impact.point, Quaternion.identity);
       AudioSource.PlayClipAtPoint(fleshImpactAudio[Random.Range(0, fleshImpactAudio.Length)], impact.point);
@@ -366,13 +367,18 @@ public class WeaponController : MonoBehaviour {
 
     Transform root = gameObject.transform.root;
     Transform current = gameObject.transform;
+		Debug.Log (root.tag);
+		Debug.Log (current.CompareTag("Concrete"));
+		Debug.Log (current.CompareTag(tag));
+
 
     if (current == null || root == null) {
       return false;
     }
+		Debug.Log ("break1");
 
     do {
-
+			Debug.Log ("break2");
       if (current.CompareTag(tag)) {
         return true;
       }
@@ -417,7 +423,7 @@ public class WeaponController : MonoBehaviour {
   void UpdateHUD() {
     weaponNameDisplay.text = weaponNames[activeWeaponID];
     ammoDisplay.text = ammo[activeWeaponID] + " / " + ammoReserve[activeWeaponID];
-    healthDisplay.text = Mathf.CeilToInt(playerHitPoints).ToString();
+    healthDisplay.text = Mathf.CeilToInt(playerStamina).ToString();
 
     if (abilityTimer > Time.time) {
       skillText.text = classAbilities[playerClassIndex] + " will be available in " +
@@ -443,6 +449,7 @@ public class WeaponController : MonoBehaviour {
   }
 
   void HeadshotMessage() {
+		
     if (lastHeadshotTime > 0) {
       headshotStreak += 1;
     } else {
@@ -455,6 +462,7 @@ public class WeaponController : MonoBehaviour {
     mainMessageOuterText.text = mainMessageText.text;
     mainMessage.Play("MainMessagePopup", -1, 0f);
     mainMessageOuter.Play("MainMessageOuterPopup", -1, 0f);
+		Debug.Log ("HS method called");
   }
 
   // swap to a specific weapon
