@@ -482,8 +482,6 @@ public class WeaponController : MonoBehaviour {
       // reset recoil
       recoilMultiplier = 1f;
     }
-
-
   }
 
   // swap to next weapon
@@ -537,8 +535,6 @@ public class WeaponController : MonoBehaviour {
     }
   }
 
-
-
   // allows another script to define which weapons to use
   public void SwapLoadout(int primary, int secondary) {
     primaryWeaponID = primary;
@@ -548,5 +544,19 @@ public class WeaponController : MonoBehaviour {
   // get the player's threat level, if higher than threshold, zombie will chase player
   public float GetThreatMultiplier() {
     return threatMultiplier;
+  }
+
+  public void increaseAmmoReserve(int value) {
+
+    weaponAudioSource.clip = reloadSound;
+    weaponAudioSource.Play();
+
+    for (int i = 0; i < ammoReserve.Length; i++) {
+      ammoReserve[i] = Mathf.Clamp(ammoReserve[i] + value, 0, 400);
+    }
+  }
+
+  public void increasePlayerStamina(float value) {
+    playerStamina = Mathf.Clamp(playerStamina + value, 1f, 100f);
   }
 }
