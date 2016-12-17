@@ -2,19 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ZombieSpawn : MonoBehaviour {
+public class ZombieSpawn : MonoBehaviour
+{
 
 	private MainGameController gameController;
 	[SerializeField]
-	private GameObject [] zombiePrefabs;
+	private GameObject[] zombiePrefabs;
 
 	// Use this for initialization
-	void Start () {
-		gameController = GameObject.Find("GameController").GetComponent<MainGameController>();
+	void Start ()
+	{
+		gameController = GameObject.Find ("GameController").GetComponent<MainGameController> ();
 		StartCoroutine (CheckForSpawn ());
 	}
-	
-	IEnumerator CheckForSpawn () {
+
+	IEnumerator CheckForSpawn ()
+	{
 		while (true) {
 			if (gameController.numZombies < gameController.maxNumZombies) {
 				Instantiate (zombiePrefabs [Random.Range (0, zombiePrefabs.Length)], transform.position, Quaternion.identity);
