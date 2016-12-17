@@ -197,8 +197,8 @@ public class WeaponController : MonoBehaviour {
     UpdateCrosshairRecoil();
     UpdateHUD();
 
-		if (!FPSController.m_IsWalking) {
-			playerStamina = Mathf.Clamp(playerStamina - Time.deltaTime * 10, 0f, 100f);
+    if (!FPSController.m_IsWalking) {
+      playerStamina = Mathf.Clamp(playerStamina - Time.deltaTime * 10, 0f, 100f);
       if (playerStamina <= 0) {
         FPSController.exhausted = true;
       }
@@ -350,8 +350,8 @@ public class WeaponController : MonoBehaviour {
       AudioSource.PlayClipAtPoint(concreteImpactAudio[Random.Range(0, concreteImpactAudio.Length)], impact.point);
     }
 
-		if (impactObject.transform.root.CompareTag("Zombie")) {
-//	if (hasParentWithTag(impactObject, "Zombie")) {
+//    if (impactObject.transform.root.CompareTag("Zombie")) {
+    if (hasParentWithTag(impactObject, "Zombie")) {
       Instantiate(fleshImpactPrefab, impact.point, quatAngle);
 //			Instantiate(fleshImpactDecal, impact.point, Quaternion.identity);
       AudioSource.PlayClipAtPoint(fleshImpactAudio[Random.Range(0, fleshImpactAudio.Length)], impact.point);
@@ -457,7 +457,7 @@ public class WeaponController : MonoBehaviour {
     mainMessageOuterText.text = mainMessageText.text;
     mainMessage.Play("MainMessagePopup", -1, 0f);
     mainMessageOuter.Play("MainMessageOuterPopup", -1, 0f);
-		Debug.Log ("HS method called");
+    Debug.Log("HS method called");
   }
 
   // swap to a specific weapon
