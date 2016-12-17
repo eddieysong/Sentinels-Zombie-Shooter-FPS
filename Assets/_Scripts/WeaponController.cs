@@ -367,24 +367,19 @@ public class WeaponController : MonoBehaviour {
 
     Transform root = gameObject.transform.root;
     Transform current = gameObject.transform;
-		Debug.Log (root.tag);
-		Debug.Log (current.CompareTag("Concrete"));
-		Debug.Log (current.CompareTag(tag));
 
+    try {
+      do {
 
-    if (current == null || root == null) {
+        if (current.CompareTag(tag)) {
+          return true;
+        }
+        current = current.parent;
+
+      } while (current != root);
+    } catch (System.NullReferenceException ex) {
       return false;
     }
-		Debug.Log ("break1");
-
-    do {
-			Debug.Log ("break2");
-      if (current.CompareTag(tag)) {
-        return true;
-      }
-      current = current.parent;
-
-    } while (current != root);
 
     if (current.CompareTag(tag)) {
       return true;
