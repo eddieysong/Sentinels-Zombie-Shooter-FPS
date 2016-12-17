@@ -219,17 +219,18 @@ public class WeaponController : MonoBehaviour
 		UpdateCrosshairRecoil ();
 		UpdateHUD ();
 
-		if (!FPSController.m_IsWalking) {
-			playerStamina = Mathf.Clamp (playerStamina - Time.deltaTime * 10, 0f, 100f);
-			if (playerStamina <= 0) {
-				FPSController.exhausted = true;
-			}
-		} else {
-			playerStamina = Mathf.Clamp (playerStamina + Time.deltaTime * 5, 0f, 100f);
-			if (playerStamina >= 30) {
-				FPSController.exhausted = false;
-			}
-		}
+
+    if (!FPSController.m_IsWalking) {
+      playerStamina = Mathf.Clamp(playerStamina - Time.deltaTime * 10, 0f, 100f);
+      if (playerStamina <= 0) {
+        FPSController.exhausted = true;
+      }
+    } else {
+      playerStamina = Mathf.Clamp(playerStamina + Time.deltaTime * 5, 0f, 100f);
+      if (playerStamina >= 30) {
+        FPSController.exhausted = false;
+      }
+    }
 		
 		if (weaponSwapAnimator.GetCurrentAnimatorStateInfo (0).IsName ("WeaponSwap2")) {
 			foreach (GameObject weapon in weaponModels) {
@@ -396,10 +397,13 @@ public class WeaponController : MonoBehaviour
 //			Instantiate(concreteImpactDecal[Random.Range(0, concreteImpactAudio.Length)], impact.point, quatAngle);
 //			ParticleSystem decal = (ParticleSystem) Instantiate( concreteImpactDecal[Random.Range(0, concreteImpactAudio.Length)], impact.point + impact.normal * 0.020f, quatAngle );
 //			decal.transform.parent = impact.transform.gameObject.transform;	// parent the decal to the object
-			AudioSource.PlayClipAtPoint (concreteImpactAudio [Random.Range (0, concreteImpactAudio.Length)], impact.point);
-		} else if (impactObject.transform.root.CompareTag ("Zombie")) {
-//	if (hasParentWithTag(impactObject, "Zombie")) {
-			Instantiate (fleshImpactPrefab, impact.point, quatAngle);
+
+      AudioSource.PlayClipAtPoint(concreteImpactAudio[Random.Range(0, concreteImpactAudio.Length)], impact.point);
+    }
+
+//    if (impactObject.transform.root.CompareTag("Zombie")) {
+    if (hasParentWithTag(impactObject, "Zombie")) {
+      Instantiate(fleshImpactPrefab, impact.point, quatAngle);
 //			Instantiate(fleshImpactDecal, impact.point, Quaternion.identity);
 			AudioSource.PlayClipAtPoint (fleshImpactAudio [Random.Range (0, fleshImpactAudio.Length)], impact.point);
 //			Debug.Log ("hit");
@@ -413,33 +417,28 @@ public class WeaponController : MonoBehaviour
 	bool hasParentWithTag (GameObject gameObject, string tag)
 	{
 
-		Transform root = gameObject.transform.root;
-		Transform current = gameObject.transform;
-		Debug.Log (root.tag);
-		Debug.Log (current.CompareTag ("Concrete"));
-		Debug.Log (current.CompareTag (tag));
+    Transform root = gameObject.transform.root;
+    Transform current = gameObject.transform;
 
+    try {
+      do {
 
-		if (current == null || root == null) {
-			return false;
-		}
-		Debug.Log ("break1");
+ if (current.CompareTag(tag)) {
+          return true;
+        }
+        current = current.parent;
 
-		do {
-			Debug.Log ("break2");
-			if (current.CompareTag (tag)) {
-				return true;
-			}
-			current = current.parent;
+      } while (current != root);
+    } catch (System.NullReferenceException ex) {
+      return false;
+    }
 
-		} while (current != root);
+    if (current.CompareTag(tag)) {
+      return true;
+    }
 
-		if (current.CompareTag (tag)) {
-			return true;
-		}
-
-		return false;
-	}
+    return false;
+  }
 
 	// handles firing logic of projectiles that are not instantly triggered (e.g. explosives)
 	void FireProjectile ()
@@ -520,6 +519,7 @@ public class WeaponController : MonoBehaviour
 		Debug.Log ("HS method called");
 	}
 
+
 	// swap to a specific weapon
 	void ReloadWeapon ()
 	{
@@ -565,6 +565,7 @@ public class WeaponController : MonoBehaviour
 	// swap to a specific weapon
 	void SwapWeapon (int weaponID)
 	{
+
 		
 		// required for recoil animation to work properly
 		weaponSwapAnimator.applyRootMotion = false;
@@ -603,8 +604,6 @@ public class WeaponController : MonoBehaviour
 		}
 	}
 
-
-
 	// allows another script to define which weapons to use
 	public void SwapLoadout (int primary, int secondary)
 	{
@@ -619,4 +618,17 @@ public class WeaponController : MonoBehaviour
 	}
 
 
+public void increaseAmmoReserve(int value) {
+
+    weaponAudioSource.clip = reloadSound;
+    weaponAudioSource.Play();
+
+    for (int i = 0; i < ammoReserve.Length; i++) {
+      ammoReserve[i] = Mathf.Clamp(ammoReserve[i] + value, 0, 400);
+    }
+  }
+
+  public void increasePlayerStamina(float value) {
+    playerStamina = Mathf.Clamp(playerStamina + value, 1f, 100f);
+  }
 }
