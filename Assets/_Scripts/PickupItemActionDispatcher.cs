@@ -21,6 +21,7 @@ public class PickupItemActionDispatcher : MonoBehaviour {
 		
   }
 
+	// Adds ammo or health/stamina depending on the item picked up
   public void dispatch(GameObject target) {
       
     print("dispatch!" + type);

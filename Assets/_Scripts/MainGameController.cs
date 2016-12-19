@@ -48,7 +48,8 @@ public class MainGameController : MonoBehaviour
 	{
 
 		StartCoroutine (setStatusFor ("Boss is DEAD!", true, 5f));
-		print ("Boss is dead.. go to next scene, which is: " + nextScene);
+		StartCoroutine (MissionComplete ());
+//		print ("Boss is dead.. go to next scene, which is: " + nextScene);
 	}
 
 
@@ -104,7 +105,7 @@ public class MainGameController : MonoBehaviour
 
 	IEnumerator MissionComplete ()
 	{
-		Time.timeScale = 0.2f;
+		Time.timeScale = 0.1f;
 		yield return new WaitForSeconds (0.5f);
 		Time.timeScale = 1f;
 		SceneManager.LoadScene ("MainMenu", LoadSceneMode.Single);

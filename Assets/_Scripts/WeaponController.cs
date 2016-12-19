@@ -220,17 +220,17 @@ public class WeaponController : MonoBehaviour
 		UpdateHUD ();
 
 
-    if (!FPSController.m_IsWalking) {
-      playerStamina = Mathf.Clamp(playerStamina - Time.deltaTime * 10, 0f, 100f);
-      if (playerStamina <= 0) {
-        FPSController.exhausted = true;
-      }
-    } else {
-      playerStamina = Mathf.Clamp(playerStamina + Time.deltaTime * 5, 0f, 100f);
-      if (playerStamina >= 30) {
-        FPSController.exhausted = false;
-      }
-    }
+		if (!FPSController.m_IsWalking) {
+			playerStamina = Mathf.Clamp (playerStamina - Time.deltaTime * 10, 0f, 100f);
+			if (playerStamina <= 0) {
+				FPSController.exhausted = true;
+			}
+		} else {
+			playerStamina = Mathf.Clamp (playerStamina + Time.deltaTime * 5, 0f, 100f);
+			if (playerStamina >= 30) {
+				FPSController.exhausted = false;
+			}
+		}
 		
 		if (weaponSwapAnimator.GetCurrentAnimatorStateInfo (0).IsName ("WeaponSwap2")) {
 			foreach (GameObject weapon in weaponModels) {
@@ -398,12 +398,12 @@ public class WeaponController : MonoBehaviour
 //			ParticleSystem decal = (ParticleSystem) Instantiate( concreteImpactDecal[Random.Range(0, concreteImpactAudio.Length)], impact.point + impact.normal * 0.020f, quatAngle );
 //			decal.transform.parent = impact.transform.gameObject.transform;	// parent the decal to the object
 
-      AudioSource.PlayClipAtPoint(concreteImpactAudio[Random.Range(0, concreteImpactAudio.Length)], impact.point);
-    }
+			AudioSource.PlayClipAtPoint (concreteImpactAudio [Random.Range (0, concreteImpactAudio.Length)], impact.point);
+		}
 
 //    if (impactObject.transform.root.CompareTag("Zombie")) {
-    if (hasParentWithTag(impactObject, "Zombie")) {
-      Instantiate(fleshImpactPrefab, impact.point, quatAngle);
+		if (hasParentWithTag (impactObject, "Zombie")) {
+			Instantiate (fleshImpactPrefab, impact.point, quatAngle);
 //			Instantiate(fleshImpactDecal, impact.point, Quaternion.identity);
 			AudioSource.PlayClipAtPoint (fleshImpactAudio [Random.Range (0, fleshImpactAudio.Length)], impact.point);
 //			Debug.Log ("hit");
@@ -417,28 +417,28 @@ public class WeaponController : MonoBehaviour
 	bool hasParentWithTag (GameObject gameObject, string tag)
 	{
 
-    Transform root = gameObject.transform.root;
-    Transform current = gameObject.transform;
+		Transform root = gameObject.transform.root;
+		Transform current = gameObject.transform;
 
-    try {
-      do {
+		try {
+			do {
 
- if (current.CompareTag(tag)) {
-          return true;
-        }
-        current = current.parent;
+				if (current.CompareTag (tag)) {
+					return true;
+				}
+				current = current.parent;
 
-      } while (current != root);
-    } catch (System.NullReferenceException ex) {
-      return false;
-    }
+			} while (current != root);
+		} catch (System.NullReferenceException ex) {
+			return false;
+		}
 
-    if (current.CompareTag(tag)) {
-      return true;
-    }
+		if (current.CompareTag (tag)) {
+			return true;
+		}
 
-    return false;
-  }
+		return false;
+	}
 
 	// handles firing logic of projectiles that are not instantly triggered (e.g. explosives)
 	void FireProjectile ()
@@ -618,17 +618,20 @@ public class WeaponController : MonoBehaviour
 	}
 
 
-public void increaseAmmoReserve(int value) {
+	public void increaseAmmoReserve (int value)
+	{
 
-    weaponAudioSource.clip = reloadSound;
-    weaponAudioSource.Play();
+		weaponAudioSource.clip = reloadSound;
+		weaponAudioSource.Play ();
 
-    for (int i = 0; i < ammoReserve.Length; i++) {
-      ammoReserve[i] = Mathf.Clamp(ammoReserve[i] + value, 0, 400);
-    }
-  }
+		for (int i = 0; i < ammoReserve.Length; i++) {
+			ammoReserve [i] = Mathf.Clamp (ammoReserve [i] + value, 0, 400);
+		}
+	}
 
-  public void increasePlayerStamina(float value) {
-    playerStamina = Mathf.Clamp(playerStamina + value, 1f, 100f);
-  }
+	public void increasePlayerStamina (float value)
+	{
+		playerHitPoints = Mathf.Clamp (playerHitPoints + value, 1f, 100f);
+		playerStamina = Mathf.Clamp (playerStamina + value, 1f, 100f);
+	}
 }
