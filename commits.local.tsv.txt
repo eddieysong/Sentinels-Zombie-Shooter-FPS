@@ -1,0 +1,42 @@
+739a796	Eddie Song	Mon Dec 19 21:11:13 2016	2016-12-19 build for project submission
+cd72e01	Eddie Song	Mon Dec 19 18:48:25 2016	Preparation for submission
+40868f8	Eddie Song	Sat Dec 17 17:06:39 2016	Integration of levels
+bebf0a3	Eddie Song	Sat Dec 17 16:46:25 2016	merge result
+ee96aa4	Thiago Andrade	Sat Dec 17 13:36:07 2016	scene fix
+c35d27e	Thiago Andrade	Sat Dec 17 01:29:46 2016	removing wav file
+5f64b38	Thiago Andrade	Sat Dec 17 01:27:18 2016	thiago recording
+add30b1	Eddie Song	Fri Dec 16 23:14:58 2016	Added main menu, zombie spawn points, and a whole bunch of game logic, and an endless level, and other things but I'm too tired to go through them one by one
+5145c1d	Thiago Andrade	Fri Dec 16 22:02:49 2016	pickup item and scripts
+82fd4a3	Thiago Andrade	Fri Dec 16 20:20:04 2016	weapon controller fixed
+472976f	Thiago Andrade	Fri Dec 16 20:14:41 2016	null pointer ex fix
+1ec28db	Eddie Song	Fri Dec 16 18:23:25 2016	Added zombie spawn script, fixed numerous things, imported and modified hospital level.
+fc81533	Thiago Andrade	Fri Dec 16 00:34:34 2016	level complete; level boss; status message on UI
+e2a5a0b	Thiago Andrade	Wed Dec 14 22:57:19 2016	doors opening with c key; more level items; zombie boss of the level
+c1f6831	Thiago Andrade	Wed Dec 14 18:47:36 2016	creating door
+cab6df8	Thiago Andrade	Wed Dec 14 15:59:35 2016	zombies not getting hurt bug fix; zombies sounds
+4c12573	Eddie Song	Tue Dec 13 23:11:39 2016	Finished UI, added kill streak text. Adrenaline Rush functional and tested.
+4baf76b	Eddie Song	Tue Dec 13 20:26:34 2016	Tweaked scripts, refactored code for clarity
+b277bf0	Eddie Song	Tue Dec 13 18:56:17 2016	Made initial UI, fixed weapon animation to work with scaled time
+d3ac1be	Thiago Andrade	Mon Dec 12 23:54:47 2016	new skybox
+83bbe1b	Thiago Andrade	Mon Dec 12 23:39:59 2016	merge result
+c88ee7e	Thiago Andrade	Mon Dec 12 23:36:00 2016	level 2 initial design
+dd1de80	Eddie Song	Mon Dec 12 21:47:54 2016	Missed one file
+7c564a6	Eddie Song	Mon Dec 12 21:46:55 2016	Zombie attack trigger functional (calling correct method on WeaponControl), next step: add zombie sounds, add UI
+0bcaf20	Eddie Song	Mon Dec 12 20:42:25 2016	Added basic zombie attack function and trigger
+c76375c	Thiago Andrade	Mon Dec 12 01:36:25 2016	fixing minor bugs
+88de30b	Eddie Song	Sun Dec 11 23:54:00 2016	A BIG COMMIT: Added weapon spread (recoil). Added abilities to slow time and turn undetectable. Added camera filters to indicate abilities being used.
+946e1aa	Eddie Song	Sun Dec 11 18:58:23 2016	Zombies will now take damage from gun fire, bleed, and die.
+0bc5c14	Thiago Andrade	Sun Dec 11 12:43:09 2016	raining
+8ffc63f	Thiago Andrade	Sun Dec 11 12:33:39 2016	rain particle system
+c00f69f	Eddie Song	Sat Dec 10 16:26:38 2016	Made UI a part of player prefab, minor fixes
+412dbb4	Eddie Song	Sat Dec 10 16:15:30 2016	Adjusted zombie prefab and attached colliders to all limbs
+e0c4ab5	Eddie Song	Sat Dec 10 14:39:30 2016	Added logic and animation for weapon reload and ammo system
+3e7555d	Eddie Song	Fri Dec 9 14:16:58 2016	Added weapon swap function and animation (shooting disabled during animation). Added basic firing function (raycast), which spawns effects at impact.
+e69ef34	Thiago Andrade	Tue Dec 6 02:02:28 2016	Merge branch 'master' of https://github.com/eddieysong/COMP305_Final_Project
+8aa6a48	Thiago Andrade	Tue Dec 6 02:02:21 2016	game external documentation
+8f72e29	Thiago Andrade	Tue Dec 6 02:01:05 2016	Update README.md
+9f39958	Thiago Andrade	Tue Dec 6 02:00:01 2016	Merge branch 'master' of https://github.com/eddieysong/COMP305_Final_Project
+6094d5b	Thiago Andrade	Tue Dec 6 01:59:11 2016	screen shots
+effb131	Thiago Andrade	Tue Dec 6 01:56:28 2016	Create README.md
+96f0c9b	Thiago Andrade	Tue Dec 6 01:53:44 2016	new scene, new zombie, zombie walking, a few useful textures
+ca04f81	Eddie Song	Sat Dec 3 15:18:39 2016	A late initial commit with weapon models, weapon camera set up, weapon swapping, weapon sounds.
