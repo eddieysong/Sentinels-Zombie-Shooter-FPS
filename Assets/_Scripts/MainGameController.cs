@@ -1,4 +1,13 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// MainGameController.cs
+/// Last Modified: 2016-12-19
+/// Created By: Thiago
+/// Last Modified By: Eddie Song
+/// Summary: this script handles main game logic, such as starting/ending
+/// 		the game, switching between scenes, etc.
+/// </summary>
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -47,7 +56,6 @@ public class MainGameController : MonoBehaviour
 	public void bossDead (GameObject boss, string nextScene)
 	{
 
-		StartCoroutine (setStatusFor ("Boss is DEAD!", true, 5f));
 		StartCoroutine (MissionComplete ());
 //		print ("Boss is dead.. go to next scene, which is: " + nextScene);
 	}
@@ -68,17 +76,10 @@ public class MainGameController : MonoBehaviour
 		} else {
 			StartCoroutine (setStatusFor ("Good bye blood sky! (" + zombiesKilled + ")", false, 2f));
 		}
-	
-		if (weaponControl.playerHitPoints <= 0) {
-			StartCoroutine (setStatusFor ("You died!", true, 5f));
-			StartCoroutine (MissionComplete ());
-		}
 
 		if (endless) {
 			endlessMultiplier *= (1 + Mathf.Floor ((float)zombiesKilled / 12) * 0.1f);
-		}
-		else if (!endless && zombiesKilled >= killsRequired) {
-			StartCoroutine (setStatusFor ("Mission Complete!", true, 5f));
+		} else if (!endless && zombiesKilled >= killsRequired) {
 			StartCoroutine (MissionComplete ());
 		}
 	}
@@ -105,10 +106,20 @@ public class MainGameController : MonoBehaviour
 
 	IEnumerator MissionComplete ()
 	{
+		StartCoroutine (setStatusFor ("Mission Complete!", true, 5f));
 		Time.timeScale = 0.1f;
 		yield return new WaitForSeconds (0.5f);
 		Time.timeScale = 1f;
 		SceneManager.LoadScene ("MainMenu", LoadSceneMode.Single);
+	}
+
+	public IEnumerator GameOver ()
+	{
+		StartCoroutine (setStatusFor ("Mission Failed!", true, 5f));
+		Time.timeScale = 0.1f;
+		yield return new WaitForSeconds (0.5f);
+		Time.timeScale = 1f;
+		SceneManager.LoadScene ("GameOver", LoadSceneMode.Single);
 	}
 
 }

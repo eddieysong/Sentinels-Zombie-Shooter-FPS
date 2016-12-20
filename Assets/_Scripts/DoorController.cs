@@ -1,4 +1,12 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// DoorController.cs
+/// Last Modified: 2016-12-17
+/// Created By: Thiago
+/// Last Modified By: Thiago
+/// Summary: this script controls door animation
+/// </summary>
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 

@@ -1,4 +1,12 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// PlayerColliderControl.cs
+/// Last Modified: 2016-12-17
+/// Created By: Thiago
+/// Last Modified By: Thiago
+/// Summary: this script handles item pickup logic on the player
+/// </summary>
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 

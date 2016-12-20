@@ -1,4 +1,14 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// WeaponController.cs
+/// Last Modified: 2016-12-19
+/// Created By: Eddie Song
+/// Last Modified By: Eddie Song
+/// Summary: this script handles everything that happens to the player duing the game,
+/// 		including moving, firing, updating HUD, etc.
+/// </summary>
+
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -91,6 +101,7 @@ public class WeaponController : MonoBehaviour
 	private int[] ammoMax = new int[3] { 30, 30, 35 };
 	private GameObject crosshair;
 	private Text healthDisplay;
+	private Text scoreDisplay;
 	private Text weaponNameDisplay;
 	private Text ammoDisplay;
 	private Text skillText;
@@ -125,6 +136,8 @@ public class WeaponController : MonoBehaviour
 	private float recoilMultiplier = 1f;
 	private float weaponSpreadMultiplier = 1f;
 	private float threatMultiplier = 1.0f;
+
+	private int score = 0;
 	private int killStreak = 0;
 	private int headshotStreak = 0;
 	private float lastKillTime;
@@ -178,6 +191,7 @@ public class WeaponController : MonoBehaviour
 		// find the HUD elements
 		crosshair = GameObject.Find ("Crosshair");
 		healthDisplay = GameObject.Find ("HealthDisplay").GetComponent<Text> ();
+		scoreDisplay = GameObject.Find ("ScoreDisplay").GetComponent<Text> ();
 		ammoDisplay = GameObject.Find ("AmmoDisplay").GetComponent<Text> ();
 		weaponNameDisplay = GameObject.Find ("WeaponName").GetComponent<Text> ();
 		skillText = GameObject.Find ("SkillText").GetComponent<Text> ();
@@ -406,7 +420,6 @@ public class WeaponController : MonoBehaviour
 			Instantiate (fleshImpactPrefab, impact.point, quatAngle);
 //			Instantiate(fleshImpactDecal, impact.point, Quaternion.identity);
 			AudioSource.PlayClipAtPoint (fleshImpactAudio [Random.Range (0, fleshImpactAudio.Length)], impact.point);
-//			Debug.Log ("hit");
 //			Instantiate (bloodSplat, impact.point, Quaternion.identity);
 			zombieControl = impactObject.GetComponentInParent<ZombieController> ();
 			zombieControl.SendMessage ("HitByBullet", new object [] { impactObject.name, weaponDamages [activeWeaponID] }, SendMessageOptions.DontRequireReceiver);
@@ -495,6 +508,8 @@ public class WeaponController : MonoBehaviour
 
 		lastKillTime = Time.time;
 
+		score += 5;
+		scoreDisplay.text = "Score: " + score;
 		mainMessageText.text = "Kill Streak x " + killStreak + " !";
 		mainMessageOuterText.text = mainMessageText.text;
 		mainMessage.Play ("MainMessagePopup", -1, 0f);
@@ -504,7 +519,7 @@ public class WeaponController : MonoBehaviour
 	void HeadshotMessage ()
 	{
 		
-		if (lastHeadshotTime > 0) {
+		if (Time.time < lastHeadshotTime + 5f) {
 			headshotStreak += 1;
 		} else {
 			headshotStreak = 1;
@@ -512,11 +527,12 @@ public class WeaponController : MonoBehaviour
 
 		lastHeadshotTime = Time.time;
 
+		score++;
+		scoreDisplay.text = "Score: " + score;
 		mainMessageText.text = "Head Shot x " + headshotStreak + " !";
 		mainMessageOuterText.text = mainMessageText.text;
 		mainMessage.Play ("MainMessagePopup", -1, 0f);
 		mainMessageOuter.Play ("MainMessageOuterPopup", -1, 0f);
-		Debug.Log ("HS method called");
 	}
 
 
@@ -596,12 +612,11 @@ public class WeaponController : MonoBehaviour
 			AudioSource.PlayClipAtPoint (playerHurtSound, transform.position);
 			playerHitPoints -= damage * (1 - damageReduction);
 //			playerHitPoints -= damage * (1 - damageReduction) * difficultyDmgMultZombie;
-
-			Debug.Log (playerHitPoints);
 			if (playerHitPoints <= 0) {
-				Debug.Log ("player dead!");
+				MainGameController mainController = GameObject.Find ("GameController").GetComponent<MainGameController>();
+				StartCoroutine(mainController.GameOver ());
 			}
-		}
+		} 
 	}
 
 	// allows another script to define which weapons to use

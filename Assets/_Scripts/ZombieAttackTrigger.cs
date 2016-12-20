@@ -1,4 +1,14 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// ZombieAttackTrigger.cs
+/// Last Modified: 2016-12-15
+/// Created By: Eddie Song
+/// Last Modified By: Eddie Song
+/// Summary: this script is attached to the hitbox that is generated when a zombie attacks,
+/// 		it checks for collision with the player, and if it finds the collision,
+/// 		the player loses health.
+/// </summary>
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 

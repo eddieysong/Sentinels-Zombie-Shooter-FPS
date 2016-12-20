@@ -1,4 +1,13 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// ZombieController.cs
+/// Last Modified: 2016-12-19
+/// Created By: Eddie Song
+/// Last Modified By: Eddie Song
+/// Summary: this script handles everything that drives zombie behavior, such as
+/// 		moving towards the player, attacking, and dying.
+/// </summary>
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;

@@ -1,4 +1,13 @@
-﻿using UnityEngine;
+﻿/// <summary>
+/// MainMenu.cs
+/// Last Modified: 2016-12-19
+/// Created By: Eddie Song
+/// Last Modified By: Eddie Song
+/// Summary: this script handles the buttons and dropdowns in the main menu
+/// </summary>
+
+
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;

@@ -1,4 +1,12 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// ZombieSpawn.cs
+/// Last Modified: 2016-12-19
+/// Created By: Eddie Song
+/// Last Modified By: Eddie Song
+/// Summary: this script has one simple task: to instantiate zombie prefabs periodically.
+/// </summary>
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
